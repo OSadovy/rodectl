@@ -1,0 +1,2 @@
+# Lets the logged-in user open RØDE's vendor HID interfaces without root.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="19f7", TAG+="uaccess"
