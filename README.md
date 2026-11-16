@@ -9,6 +9,16 @@ This is an independent project, not affiliated with or endorsed by RØDE. The
 protocol was worked out from RØDE Central's behaviour on the wire; see
 [docs/protocol.md](docs/protocol.md).
 
+## Installing
+
+On Windows, download the zip from
+[Releases](https://github.com/OSadovy/rodectl/releases), extract
+`rodectl.exe`, and put it in a folder on your `PATH`. It needs nothing else
+installed. The exe is not code-signed, so Windows SmartScreen may warn the
+first time it runs.
+
+Elsewhere, build it from source; see [Building](#building).
+
 ## Devices
 
 | device | USB id | tested firmware |
@@ -124,6 +134,11 @@ can open the devices without root. Linux builds but has not been tried with
 the devices; whether a receiver is switched on is reported only on Windows.
 
 The `rode-hid` library crate holds the protocol and can be used on its own.
+
+**Releasing.** Set the version in the workspace `Cargo.toml`, commit, and
+push a matching tag, such as `v0.2.0`. The release workflow builds the
+Windows zip and publishes it as a GitHub release; it fails if the tag and
+the version differ.
 
 ## License
 

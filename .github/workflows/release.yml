@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Check the tag matches the version
+        run: |
+          version=$(cargo metadata --no-deps --format-version 1 |
+            jq -r '.packages[] | select(.name == "rodectl") | .version')
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "tag $GITHUB_REF_NAME does not match version $version in Cargo.toml"
+            exit 1
+          fi
+
+      - run: cargo test --workspace --locked
+      - run: cargo build --release --locked --package rodectl --target x86_64-pc-windows-msvc
+
+      - name: Package
+        run: |
+          name="rodectl-$GITHUB_REF_NAME-x86_64-pc-windows-msvc"
+          mkdir "$name"
+          cp target/x86_64-pc-windows-msvc/release/rodectl.exe README.md LICENSE "$name/"
+          7z a "$name.zip" "$name"
+          sha256sum "$name.zip" > "$name.zip.sha256"
+          echo "ASSET=$name" >> "$GITHUB_ENV"
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$ASSET.zip" "$ASSET.zip.sha256" \
+            --title "$GITHUB_REF_NAME" --generate-notes --verify-tag
