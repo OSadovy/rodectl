@@ -280,6 +280,6 @@ mod tests {
             .set_monitor_level(Input::Two, 101)
             .unwrap_err();
         assert!(matches!(err, Error::OutOfRange(_)));
-        assert!(script.sent.is_empty());
+        assert_eq!(script.sent, Vec::<Vec<u8>>::new());
     }
 }
